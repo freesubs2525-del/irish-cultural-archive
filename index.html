@@ -1,94 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta name="description" content="An interactive map exploring the literary and nationalist figures of Ireland's history." />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta charset="UTF-8">
+    <meta name="description" content="An interactive map exploring the literary and nationalist figures of Ireland's history." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
     <title>Irish Literary & Nationalist Archive</title>
-	<link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-    body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    #map { height: 100vh; width: 100vw; background-color: #aad3df; }
-    
-    .info-panel {
-        position: absolute; top: 20px; right: 20px; z-index: 1000;
-        background: rgba(255, 255, 255, 0.95); 
-        padding: 20px; 
-        border-radius: 12px; 
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-        width: 320px;
-        max-height: 85vh;
-        overflow-y: auto; /* Adds scroll if content is long */
-        border: 2px solid #00441b;
-    }
-
-    .info-panel h2 { margin-top: 0; color: #00441b; border-bottom: 2px solid #74c476; padding-bottom: 5px; }
-    .figure-card { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-    .figure-img { width: 100%; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ddd; }
-    .birth-death { font-style: italic; color: #666; font-size: 0.9em; }
-    .works-list { font-size: 0.85em; background: #f9f9f9; padding: 10px; border-radius: 5px; }
-	
-	.about-link {
-    position: absolute; bottom: 20px; left: 20px; z-index: 1000;
-    background: white; padding: 8px 15px; border-radius: 20px;
-    cursor: pointer; font-weight: bold; border: 2px solid #00441b;
-}
-.overlay {
-    display: none; position: fixed; z-index: 2000; left: 0; top: 0;
-    width: 100%; height: 100%; background: rgba(0,0,0,0.7);
-}
-.overlay-content {
-    background: white; margin: 10% auto; padding: 40px;
-    width: 60%; border-radius: 15px; position: relative; line-height: 1.6;
-}
-.close-btn { position: absolute; right: 20px; top: 10px; font-size: 30px; cursor: pointer; }
-	
-</style>
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
     <div id="map"></div>
 	
-<div class="about-link" onclick="toggleAbout()">About this Project</div>
+    <div class="about-link" onclick="toggleAbout()">About this Project</div>
 
-<div id="about-overlay" class="overlay">
-    <div class="overlay-content">
-        <span class="close-btn" onclick="toggleAbout()">&times;</span>
-        <h2>The Irish Cultural & Nationalist Archive</h2>
-        <p>This project is a humble attempt to gather the scattered threads of Ireland’s cultural and nationalist history into one accessible space. By connecting these figures to the soil of their respective counties, we hope to provide a clearer sense of how the written word and local activism fueled the broader movement for identity.</p>
-        
-        <hr>
-        
-        <h3>A Commitment to Hidden Histories</h3>
-        <p>We recognize that this archive is currently incomplete. History has often been a selective narrator, frequently overlooking the profound impact of women in the revolutionary and literary movements. Our next step is the development of a dedicated <strong>Women of the Archive</strong> section—an effort to restore the names and legacies of those figures who worked in the shadows of the mainstream historical record.</p>
-        
-        <hr>
-        
-        <p style="font-size: 0.9em; color: #555;">
-            <em>Collaboratively assembled by: Emad Aldin, Ahmed Khaled, Ahmed Mostafa.</em><br>
-            A living project dedicated to the memory of Ireland's past.
-        </p>
+    <div id="about-overlay" class="overlay">
+        <div class="overlay-content">
+            <span class="close-btn" onclick="toggleAbout()">&times;</span>
+            <h2>The Irish Cultural & Nationalist Archive</h2>
+            <p>This project is a humble attempt to gather the scattered threads of Ireland’s cultural and nationalist history into one accessible space. By connecting these figures to the soil of their respective counties, we hope to provide a clearer sense of how the written word and local activism fueled the broader movement for identity.</p>
+            <hr>
+            <h3>A Commitment to Hidden Histories</h3>
+            <p>We recognize that this archive is currently incomplete. History has often been a selective narrator, frequently overlooking the profound impact of women in the revolutionary and literary movements. Our next step is the development of a dedicated <strong>Women of History</strong> section—an effort to restore the names and legacies of those figures who worked in the shadows of the mainstream historical record.</p>
+            <hr>
+            <p style="font-size: 0.9em; color: #555;">
+            <em>Collaboratively assembled by: Emad Aldin, Ahmed Khaled, Ahmed Mostafa.</em>
+			<br>
+            " A living project dedicated to the memory of Ireland's past. " 
+			</p>
+        </div>
     </div>
-</div>
 	
-    <div class="info-panel">
-		<h2>Cultural Archive</h2>
-		<div id="display-info">Hover over a county to view figures.</div>
-	</div>
+    <div class="info-panel" id="info-panel">
+        <span class="close-panel" onclick="closePanel()">&times;</span>
+        <h2>Cultural Archive</h2>
+        <div id="display-info">Hover or tap a county to view figures.</div>
+    </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-	<script src="ireland_borders.js"></script>
-	<script src="county_data.js"></script>
+    <script src="ireland_borders.js"></script>
+    <script src="county_data.js"></script>
 
     <script>
-    // 1. Data Setup (Ensure names match NAME_1 in your .js file)
-    // var countyData = {
-    //    "Dublin": { count: 5, figures: ["James Joyce (Novelist)", "Padraig Pearse (Leader)"] },
-    //    "Sligo": { count: 2, figures: ["W.B. Yeats (Poet)", "Constance Markievicz (Leader)"] },
-    //    "Cork": { count: 3, figures: ["Michael Collins (Leader)", "Frank O'Connor (Writer)"] }
-    //};
-
-    // 2. Initialize Map with HARD BOUNDS
     var southWest = L.latLng(51.2, -11.0);
     var northEast = L.latLng(55.5, -5.3);
     var bounds = L.latLngBounds(southWest, northEast);
@@ -100,7 +54,6 @@
         maxZoom: 11
     }).setView([53.4129, -8.2439], 7);
 
-    // 3. Tile Layer (Fixes the 403 error)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '© CARTO'
     }).addTo(map);
@@ -121,51 +74,70 @@
         };
     }
 
-    function onEachFeature(feature, layer) {
-    layer.on({
-        mouseover: function(e) {
-            var l = e.target;
-            l.setStyle({ weight: 4, color: '#ffeb3b' });
-            l.bringToFront();
-            
-            var name = feature.properties.NAME_1;
-            var data = countyData[name];
-            var displayDiv = document.getElementById('display-info');
-            
-            if (data && data.figures.length > 0) {
-                var content = "<h3>" + name + "</h3>";
-                data.figures.forEach(function(fig) {
-                    content += "<div class='figure-card'>";
-                    if(fig.image) {
-                        content += "<img src='" + fig.image + "' class='figure-img' onerror='this.style.display=\"none\"'>";
-                    }
-                    content += "<strong>" + fig.name + "</strong><br>";
-                    content += "<span class='birth-death'>" + fig.dates + "</span><br><br>";
-                    content += "<p>" + fig.bio + "</p>";
-                    content += "<div class='works-list'><strong>Notable Works:</strong><br>• " + fig.works.join("<br>• ") + "</div>";
-                    content += "</div>";
-                });
-                displayDiv.innerHTML = content;
-            } else {
-                displayDiv.innerHTML = "<h3>" + name + "</h3><p>No figures archived yet.</p>";
-            }
-        },
-        mouseout: function(e) {
-            geojson.resetStyle(e.target);
+    function closePanel() {
+        document.getElementById('info-panel').style.display = 'none';
+        var mapDiv = document.getElementById('map');
+        var aboutBtn = document.querySelector('.about-link');
+        
+        if (window.innerWidth <= 768) {
+            mapDiv.style.height = "100vh";
+            aboutBtn.style.bottom = "20px"; 
+            setTimeout(function() { map.invalidateSize(); }, 300);
         }
-    });
-	}
+    }
+
+    function onEachFeature(feature, layer) {
+        layer.on({
+            click: function(e) {
+                var panel = document.getElementById('info-panel');
+                var mapDiv = document.getElementById('map');
+                var aboutBtn = document.querySelector('.about-link');
+                
+                panel.style.display = 'block';
+                
+                if (window.innerWidth <= 768) {
+                    mapDiv.style.height = "50vh";
+                    aboutBtn.style.bottom = "52vh"; 
+                    setTimeout(function() { map.invalidateSize(); }, 300);
+                }
+
+                var name = feature.properties.NAME_1;
+                var data = countyData[name];
+                var displayDiv = document.getElementById('display-info');
+                
+                if (data && data.figures.length > 0) {
+                    var content = "<h3>" + name + "</h3>";
+                    data.figures.forEach(function(fig) {
+                        content += "<div class='figure-card'>";
+                        if(fig.image) {
+                            content += "<img src='" + fig.image + "' class='figure-img' onerror='this.style.display=\"none\"'>";
+                        }
+                        content += "<strong>" + fig.name + "</strong><br>";
+                        content += "<span class='birth-death'>" + fig.dates + "</span><br><br>";
+                        content += "<p>" + fig.bio + "</p>";
+                        content += "<div class='works-list'><strong>Notable Works:</strong><br>• " + fig.works.join("<br>• ") + "</div>";
+                        content += "</div>";
+                    });
+                    displayDiv.innerHTML = content;
+                } else {
+                    displayDiv.innerHTML = "<h3>" + name + "</h3><p>No figures archived yet.</p>";
+                }
+            },
+            mouseout: function(e) {
+                geojson.resetStyle(e.target);
+            }
+        });
+    }
 
     var geojson = L.geoJson(irelandGeoJSON, {
         style: style,
         onEachFeature: onEachFeature
     }).addTo(map);
 	
-	function toggleAbout() {
-    var overlay = document.getElementById("about-overlay");
-    overlay.style.display = (overlay.style.display === "block") ? "none" : "block";
-}
-	
+    function toggleAbout() {
+        var overlay = document.getElementById("about-overlay");
+        overlay.style.display = (overlay.style.display === "block") ? "none" : "block";
+    }
     </script>
 </body>
 </html>
