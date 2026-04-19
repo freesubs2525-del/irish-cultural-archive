@@ -1,0 +1,68 @@
+/* --- Restored Original Styles --- */
+body { margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+#map { height: 100vh; width: 100vw; background-color: #aad3df; transition: height 0.3s ease-in-out; }
+
+.info-panel {
+    position: absolute; top: 20px; right: 20px; z-index: 1000;
+    background: rgba(255, 255, 255, 0.95); 
+    padding: 20px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    width: 320px;
+    max-height: 85vh;
+    overflow-y: auto;
+    border: 2px solid #00441b;
+}
+
+.info-panel h2 { margin-top: 0; color: #00441b; border-bottom: 2px solid #74c476; padding-bottom: 5px; }
+
+.close-panel {
+    position: absolute; right: 15px; top: 10px;
+    font-size: 28px; font-weight: bold; color: #666;
+    cursor: pointer; line-height: 1; z-index: 1001;
+}
+
+.figure-card { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+.figure-img { width: 100%; border-radius: 8px; margin-bottom: 10px; border: 1px solid #ddd; }
+.birth-death { font-style: italic; color: #666; font-size: 0.9em; }
+.works-list { font-size: 0.85em; background: #f9f9f9; padding: 10px; border-radius: 5px; }
+
+.about-link {
+    position: absolute; bottom: 20px; left: 20px; z-index: 1000;
+    background: white; padding: 8px 15px; border-radius: 20px;
+    cursor: pointer; font-weight: bold; border: 2px solid #00441b;
+    transition: bottom 0.3s ease-in-out;
+}
+
+.overlay {
+    display: none; position: fixed; z-index: 3000; left: 0; top: 0;
+    width: 100%; height: 100%; background: rgba(0,0,0,0.85);
+    overflow-y: auto;
+}
+
+.overlay-content {
+    background: white; 
+    margin: 5% auto; 
+    padding: 40px;
+    /* Expanded width for PC to make it less squared */
+    width: 90%; 
+    max-width: 850px; 
+    border-radius: 15px; 
+    position: relative; 
+    line-height: 1.6;
+}
+
+.close-btn { position: absolute; right: 20px; top: 10px; font-size: 30px; cursor: pointer; }
+
+/* --- Mobile Fixes --- */
+@media (max-width: 768px) {
+    #map { height: 50vh; }
+    .info-panel {
+        position: fixed !important; top: auto !important; bottom: 0 !important; 
+        right: 0 !important; width: 100% !important; height: 50vh !important;
+        border-radius: 20px 20px 0 0; border: none; border-top: 3px solid #00441b;
+        box-sizing: border-box; z-index: 2000;
+    }
+    .about-link { bottom: 52vh; left: 10px; padding: 5px 10px; font-size: 0.8em; }
+    .overlay-content { width: 85%; padding: 25px; margin: 10% auto; }
+}
