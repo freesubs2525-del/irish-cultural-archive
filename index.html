@@ -44,9 +44,14 @@
 .close-btn { position: absolute; right: 20px; top: 10px; font-size: 30px; cursor: pointer; }
 
 		@media (max-width: 768px) {
+    /* 1. Layout: Map on top, Info on bottom */
+    #map {
+        height: 60% !important; 
+    }
+
     #info-panel {
         width: 100% !important;
-        height: 40%; /* Only takes up the bottom portion */
+        height: 40% !important;
         top: auto !important;
         bottom: 0 !important;
         left: 0 !important;
@@ -54,36 +59,43 @@
         box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
         padding: 20px;
         overflow-y: auto;
+        box-sizing: border-box; /* Ensures padding doesn't break width */
+    }
+
+    /* 2. UI Elements: Cleaning up the map corners */
+    .leaflet-control-zoom {
+        display: none; 
     }
     
-    #map {
-        height: 60% !important; /* Gives the map its own space */
-    }
-}
-		@media (max-width: 768px) {
-    .leaflet-control-zoom {
-        display: none; /* People can pinch-zoom anyway */
-    }
     .leaflet-control-attribution {
         font-size: 8px !important;
     }
+
     .about-link {
-        bottom: 42%; /* Moves it above the new bottom panel */
+        bottom: 42%; /* Positioned just above the info panel */
         left: 10px;
         padding: 4px 8px;
+        font-size: 0.75rem;
     }
-}
-		@media (max-width: 768px) {
-    #info-panel h2 { font-size: 1.2rem; }
+
+    /* 3. Content: Shrinking text and images for small screens */
+    #info-panel h2 { 
+        font-size: 1.1rem; 
+        margin-top: 0;
+    }
+
     #info-panel img { 
-        width: 100px !important; 
+        width: 80px !important; 
         height: auto !important; 
         float: right; 
         margin-left: 10px;
+        border-radius: 8px;
     }
+
     .figure-container {
         display: flex;
         flex-direction: column;
+        gap: 10px;
     }
 }
 	
