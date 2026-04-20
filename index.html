@@ -2,18 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="description" content="An interactive map exploring the literary and nationalist figures of Ireland's history." />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
     <title>Irish Literary & Nationalist Archive</title>
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
     <div id="map"></div>
-	
     <div class="about-link" onclick="toggleAbout()">About this Project</div>
+    <div class="archive-toggle" id="mode-toggle" onclick="toggleArchiveMode()">Women of the Archive</div>
 
     <div id="about-overlay" class="overlay">
         <div class="overlay-content">
@@ -22,19 +20,18 @@
             <p>This project is a humble attempt to gather the scattered threads of Ireland’s cultural and nationalist history into one accessible space. By connecting these figures to the soil of their respective counties, we hope to provide a clearer sense of how the written word and local activism fueled the broader movement for identity.</p>
             <hr>
             <h3>A Commitment to Hidden Histories</h3>
-            <p>We recognize that this archive is currently incomplete. History has often been a selective narrator, frequently overlooking the profound impact of women in the revolutionary and literary movements. Our next step is the development of a dedicated <strong>Women of History</strong> section—an effort to restore the names and legacies of those figures who worked in the shadows of the mainstream historical record.</p>
+            <p>We recognize that this archive is currently incomplete. History has often been a selective narrator, frequently overlooking the profound impact of women in the revolutionary and literary movements. Our next step is the development of a dedicated <strong>Women of the Archive</strong> section—an effort to restore the names and legacies of those figures who worked in the shadows of the mainstream historical record.</p>
             <hr>
             <p style="font-size: 0.9em; color: #555;">
-            <em>Collaboratively assembled by: Emad Aldin, Ahmed Khaled, Ahmed Mostafa.</em>
-			<br>
-            " A living project dedicated to the memory of Ireland's past. " 
-			</p>
+                <em>Collaboratively assembled by: Emad Aldin, Ahmed Khaled, Ahmed Mostafa.</em><br>
+                " A living project dedicated to the memory of Ireland's past. "
+            </p>
         </div>
     </div>
 	
     <div class="info-panel" id="info-panel">
         <span class="close-panel" onclick="closePanel()">&times;</span>
-        <h2>Cultural Archive</h2>
+        <h2 id="panel-title">Cultural Archive</h2>
         <div id="display-info">Hover or tap a county to view figures.</div>
     </div>
 
@@ -43,45 +40,53 @@
     <script src="county_data.js"></script>
 
     <script>
-    var southWest = L.latLng(51.2, -11.0);
-    var northEast = L.latLng(55.5, -5.3);
-    var bounds = L.latLngBounds(southWest, northEast);
+    var map = L.map('map', { minZoom: 7, maxZoom: 11 }).setView([53.4129, -8.2439], 7);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
 
-    var map = L.map('map', {
-        maxBounds: bounds,         
-        maxBoundsViscosity: 1.0,   
-        minZoom: 7,                
-        maxZoom: 11
-    }).setView([53.4129, -8.2439], 7);
+    var archiveMode = 'standard';
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-        attribution: '© CARTO'
-    }).addTo(map);
+    function toggleArchiveMode() {
+        var btn = document.getElementById('mode-toggle');
+        var title = document.getElementById('panel-title');
+        if (archiveMode === 'standard') {
+            archiveMode = 'women';
+            btn.innerText = "General Archive";
+            btn.classList.add('active');
+            title.innerText = "Women's Archive";
+        } else {
+            archiveMode = 'standard';
+            btn.innerText = "Women of the Archive";
+            btn.classList.remove('active');
+            title.innerText = "Cultural Archive";
+        }
+        geojson.setStyle(style);
+        closePanel();
+    }
 
     function getColor(d) {
-        return d > 4 ? '#00441b' : d > 2 ? '#238b45' : d > 0 ? '#74c476' : '#c7e9c0';
+        if (archiveMode === 'standard') {
+            return d > 4 ? '#00441b' : d > 2 ? '#238b45' : d > 0 ? '#74c476' : '#c7e9c0';
+        } else {
+            return d > 2 ? '#4b2d83' : d > 1 ? '#77529e' : d > 0 ? '#a38bc4' : '#d1c4e9';
+        }
     }
 
     function style(feature) {
         var countyName = feature.properties.NAME_1; 
-        var figureCount = countyData[countyName] ? countyData[countyName].count : 0;
-        return {
-            fillColor: getColor(figureCount),
-            weight: 2,
-            opacity: 1,
-            color: 'white',
-            fillOpacity: 0.7
-        };
+        var data = countyData[countyName];
+        var count = (archiveMode === 'standard') ? (data ? data.count : 0) : (data ? data.womenCount : 0);
+        return { fillColor: getColor(count), weight: 2, opacity: 1, color: 'white', fillOpacity: 0.7 };
     }
 
     function closePanel() {
         document.getElementById('info-panel').style.display = 'none';
         var mapDiv = document.getElementById('map');
         var aboutBtn = document.querySelector('.about-link');
-        
+        var toggleBtn = document.querySelector('.archive-toggle');
         if (window.innerWidth <= 768) {
             mapDiv.style.height = "100vh";
-            aboutBtn.style.bottom = "20px"; 
+            aboutBtn.style.bottom = "20px";
+            toggleBtn.style.bottom = "20px"; 
             setTimeout(function() { map.invalidateSize(); }, 300);
         }
     }
@@ -92,12 +97,13 @@
                 var panel = document.getElementById('info-panel');
                 var mapDiv = document.getElementById('map');
                 var aboutBtn = document.querySelector('.about-link');
+                var toggleBtn = document.querySelector('.archive-toggle');
                 
                 panel.style.display = 'block';
-                
                 if (window.innerWidth <= 768) {
                     mapDiv.style.height = "50vh";
                     aboutBtn.style.bottom = "52vh"; 
+                    toggleBtn.style.bottom = "52vh";
                     setTimeout(function() { map.invalidateSize(); }, 300);
                 }
 
@@ -105,35 +111,29 @@
                 var data = countyData[name];
                 var displayDiv = document.getElementById('display-info');
                 
-                if (data && data.figures.length > 0) {
-                    var content = "<h3>" + name + "</h3>";
-                    data.figures.forEach(function(fig) {
-                        content += "<div class='figure-card'>";
-                        if(fig.image) {
-                            content += "<img src='" + fig.image + "' class='figure-img' onerror='this.style.display=\"none\"'>";
-                        }
-                        content += "<strong>" + fig.name + "</strong><br>";
-                        content += "<span class='birth-death'>" + fig.dates + "</span><br><br>";
-                        content += "<p>" + fig.bio + "</p>";
-                        content += "<div class='works-list'><strong>Notable Works:</strong><br>• " + fig.works.join("<br>• ") + "</div>";
-                        content += "</div>";
-                    });
-                    displayDiv.innerHTML = content;
-                } else {
-                    displayDiv.innerHTML = "<h3>" + name + "</h3><p>No figures archived yet.</p>";
+                if (data) {
+                    var figures = data.figures.filter(f => archiveMode === 'standard' || f.category === 'woman');
+                    if (figures.length > 0) {
+                        var content = "<h3>County of " + name + "</h3>";
+                        figures.forEach(function(fig) {
+                            content += "<div class='figure-card'>";
+                            if(fig.image) content += "<img src='" + fig.image + "' class='figure-img' onerror='this.style.display=\"none\"'>";
+                            content += "<strong>" + fig.name + "</strong><br>";
+                            content += "<span class='birth-death'>" + fig.dates + "</span><br><br>";
+                            content += "<p>" + fig.bio + "</p>";
+                            if(fig.works) content += "<div class='works-list'><strong>Notable Works:</strong><br>• " + fig.works.join("<br>• ") + "</div>";
+                            content += "</div>";
+                        });
+                        displayDiv.innerHTML = content;
+                    } else {
+                        displayDiv.innerHTML = "<h3>" + name + "</h3><p>No figures archived here yet.</p>";
+                    }
                 }
-            },
-            mouseout: function(e) {
-                geojson.resetStyle(e.target);
             }
         });
     }
 
-    var geojson = L.geoJson(irelandGeoJSON, {
-        style: style,
-        onEachFeature: onEachFeature
-    }).addTo(map);
-	
+    var geojson = L.geoJson(irelandGeoJSON, { style: style, onEachFeature: onEachFeature }).addTo(map);
     function toggleAbout() {
         var overlay = document.getElementById("about-overlay");
         overlay.style.display = (overlay.style.display === "block") ? "none" : "block";
